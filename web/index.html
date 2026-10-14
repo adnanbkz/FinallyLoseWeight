@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FinallyLoseWeight</title>
+    <meta name="description" content="Tu diario de peso, comidas, pasos y cardio." />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#047857" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#064e3b" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-48x48.png" sizes="48x48" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" sizes="180x180" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="FLW" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    <style>
+      /* Minimal splash shown before the JS bundle loads. */
+      html { background: #f8fafc; }
+      @media (prefers-color-scheme: dark) { html { background: #020617; } }
+      #boot-splash {
+        min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; gap: 16px;
+        align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;
+        color: #047857;
+      }
+      #boot-splash img { width: 72px; height: 72px; border-radius: 18px; }
+      #boot-splash p { margin: 0; font-size: 15px; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot-splash" aria-busy="true">
+        <img src="/pwa-192x192.png" alt="" />
+        <p>Cargando…</p>
+      </div>
+    </div>
+    <noscript>Necesitas activar JavaScript para usar FinallyLoseWeight.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
