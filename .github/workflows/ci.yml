@@ -1,0 +1,117 @@
+# CI: build + tests of the API (.NET 10 + PostgreSQL 16) and of the web app (React + Vite).
+# It is also called by deploy-api.yml / deploy-web.yml (workflow_call) so a red build never deploys.
+name: CI
+
+on:
+  push:
+    # Dependabot branches are already covered by their pull_request run.
+    branches-ignore:
+      - 'dependabot/**'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: 'Qué probar'
+        type: choice
+        options: [all, api, web]
+        default: all
+  workflow_call:
+    inputs:
+      component:
+        description: 'Qué probar: all, api o web'
+        type: string
+        required: false
+        default: all
+
+permissions:
+  contents: read
+
+concurrency:
+  # When this workflow is called from a deploy workflow, github.workflow is the CALLER's name.
+  # The "ci-" prefix keeps this group different from the caller's own group (same name = deadlock).
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  api:
+    # inputs.component is empty on push/pull_request, so both jobs run.
+    if: inputs.component != 'web'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      # Each test fixture creates and drops its own uniquely named database on this server.
+      FLW_TEST_CONNECTION: Host=localhost;Port=5432;Username=postgres;Password=postgres
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('api/**/*.csproj', 'api/**/*.props', 'api/**/*.targets') }}
+          restore-keys: nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore api/FinallyLoseWeight.slnx
+
+      - name: Build
+        run: dotnet build api/FinallyLoseWeight.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test api/FinallyLoseWeight.slnx --configuration Release --no-build
+
+  web:
+    if: inputs.component != 'api'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build

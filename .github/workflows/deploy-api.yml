@@ -1,0 +1,103 @@
+# Deploys the API to Azure App Service (Linux) after the API tests pass.
+# Configuration (docs/SETUP.md, section "GitHub"):
+#   - repository variable AZURE_WEBAPP_NAME            (name of the Web App)
+#   - repository secret   AZURE_WEBAPP_PUBLISH_PROFILE (contents of the downloaded publish profile)
+name: Deploy API
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer run waits for the current one instead of interrupting it.
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+  DOTNET_NOLOGO: '1'
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+    with:
+      component: api
+
+  deploy:
+    needs: test
+    # Manual runs from another branch never reach production. Skipped until AZURE_WEBAPP_NAME is set (docs/SETUP.md).
+    if: github.ref == 'refs/heads/main' && vars.AZURE_WEBAPP_NAME != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ steps.smoke.outputs.url }}
+    steps:
+      - name: Check configuration
+        env:
+          AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+          HAS_PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE != '' }}
+        run: |
+          fail=0
+          if [ -z "$AZURE_WEBAPP_NAME" ]; then
+            echo "::error::Falta la variable de repositorio AZURE_WEBAPP_NAME (Settings > Secrets and variables > Actions > Variables). Ver docs/SETUP.md."
+            fail=1
+          fi
+          if [ "$HAS_PUBLISH_PROFILE" != "true" ]; then
+            echo "::error::Falta el secreto AZURE_WEBAPP_PUBLISH_PROFILE (Settings > Secrets and variables > Actions > Secrets). Ver docs/SETUP.md."
+            fail=1
+          fi
+          exit $fail
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish
+        run: dotnet publish api/src/FinallyLoseWeight.Api --configuration Release --output publish
+
+      - name: Deploy to Azure App Service
+        id: deploy
+        uses: azure/webapps-deploy@02a81bead70021f5284939794bcec79c271ab383 # v3.0.8
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: publish
+
+      - name: Smoke test (GET /health)
+        id: smoke
+        env:
+          WEBAPP_URL: ${{ steps.deploy.outputs.webapp-url }}
+        run: |
+          if [ -z "$WEBAPP_URL" ]; then
+            echo "::warning::El despliegue no devolvió la URL de la app; se omite la comprobación de /health."
+            exit 0
+          fi
+          # The publish profile may report an http:// URL; the app is HTTPS-only.
+          base="https://${WEBAPP_URL#*://}"
+          base="${base%/}"
+          echo "url=$base" >> "$GITHUB_OUTPUT"
+          # F1 + Neon: the first request after a deploy can be slow (cold start + migrations).
+          for attempt in $(seq 1 20); do
+            status=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 30 "$base/health" || true)
+            if [ "$status" = "200" ]; then
+              echo "OK: $base/health respondió 200 (intento $attempt)."
+              echo "API desplegada: $base" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Intento $attempt: $base/health respondió HTTP ${status:-000}; reintento en 15 s..."
+            sleep 15
+          done
+          echo "::error::$base/health no respondió 200 en ~5 minutos. Revisa el Log stream de App Service y la configuración (docs/SETUP.md, Solución de problemas)."
+          exit 1

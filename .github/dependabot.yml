@@ -1,0 +1,80 @@
+# Weekly dependency updates, grouped to keep the number of PRs low.
+# cooldown only delays version updates (it gives the ecosystem a few days to catch a bad or
+# malicious release); security updates are not delayed.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /api # finds FinallyLoseWeight.slnx and both projects
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Madrid
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'deps(api)'
+    groups:
+      nuget-minor-patch:
+        update-types: [minor, patch]
+    ignore:
+      # These majors follow the .NET release (net10.0 -> net11.0): upgrade them together with
+      # TargetFramework in a deliberate PR, not through Dependabot.
+      - dependency-name: 'Microsoft.AspNetCore.*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'Microsoft.EntityFrameworkCore*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'Microsoft.Extensions.*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'Npgsql*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'EFCore.NamingConventions'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: npm
+    directory: /web
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Madrid
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'deps(web)'
+    # Dependencies go to the FIRST group that matches: all minor/patch updates in one PR,
+    # majors grouped by family so related packages move together.
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+      react:
+        patterns: ['react', 'react-dom', 'react-is', '@types/react', '@types/react-dom']
+      firebase:
+        patterns: ['@firebase/*', 'firebase']
+      vite-and-tests:
+        patterns: ['vite', 'vite-plugin-pwa', '@vitejs/*', 'vitest', '@vitest/*', 'workbox-*', 'jsdom', '@testing-library/*']
+      lint-and-types:
+        patterns: ['eslint', 'eslint-*', '@eslint/*', 'typescript', 'typescript-eslint', 'globals']
+      tailwind:
+        patterns: ['tailwindcss', '@tailwindcss/*']
+    ignore:
+      # @types/node tracks the Node.js major used in CI and builds (22).
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Madrid
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: 'deps(actions)'
+    groups:
+      github-actions:
+        patterns: ['*']

@@ -1,0 +1,106 @@
+# Builds the PWA and deploys it to Firebase Hosting (live channel) after the web checks pass.
+# Configuration (docs/SETUP.md, section "GitHub"):
+#   - repository variables FIREBASE_PROJECT_ID and VITE_* (public web config, not secrets)
+#   - repository secret    FIREBASE_SERVICE_ACCOUNT (JSON key of the deploy service account)
+name: Deploy web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'web/**'
+      - 'firebase.json'
+      - '.firebaserc'
+      - '.github/workflows/deploy-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deployment at a time; a newer run waits for the current one instead of interrupting it.
+concurrency:
+  group: deploy-web
+  cancel-in-progress: false
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+    with:
+      component: web
+
+  deploy:
+    needs: test
+    # Manual runs from another branch never reach production. Skipped until FIREBASE_PROJECT_ID is set (docs/SETUP.md).
+    if: github.ref == 'refs/heads/main' && vars.FIREBASE_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.details_url }}
+    env:
+      # Baked into the JavaScript bundle at build time (they are public by design).
+      VITE_FIREBASE_API_KEY: ${{ vars.VITE_FIREBASE_API_KEY }}
+      VITE_FIREBASE_AUTH_DOMAIN: ${{ vars.VITE_FIREBASE_AUTH_DOMAIN }}
+      VITE_FIREBASE_PROJECT_ID: ${{ vars.VITE_FIREBASE_PROJECT_ID }}
+      VITE_FIREBASE_APP_ID: ${{ vars.VITE_FIREBASE_APP_ID }}
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+    steps:
+      - name: Check configuration
+        env:
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          HAS_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
+        run: |
+          fail=0
+          for name in FIREBASE_PROJECT_ID VITE_FIREBASE_API_KEY VITE_FIREBASE_AUTH_DOMAIN VITE_FIREBASE_PROJECT_ID VITE_FIREBASE_APP_ID VITE_API_BASE_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Falta la variable de repositorio $name (Settings > Secrets and variables > Actions > Variables). Ver docs/SETUP.md."
+              fail=1
+            fi
+          done
+          if [ "$HAS_FIREBASE_SERVICE_ACCOUNT" != "true" ]; then
+            echo "::error::Falta el secreto FIREBASE_SERVICE_ACCOUNT (Settings > Secrets and variables > Actions > Secrets). Ver docs/SETUP.md."
+            fail=1
+          fi
+          if [ -n "$VITE_API_BASE_URL" ]; then
+            case "$VITE_API_BASE_URL" in
+              https://*) ;;
+              *) echo "::error::VITE_API_BASE_URL debe empezar por https:// (una PWA servida por HTTPS no puede llamar a una API http)."; fail=1 ;;
+            esac
+            case "$VITE_API_BASE_URL" in
+              */|*/api) echo "::warning::VITE_API_BASE_URL debe ser solo el origen de la API, sin barra final y sin /api (p. ej. https://mi-api.azurewebsites.net)." ;;
+            esac
+          fi
+          if [ -n "$FIREBASE_PROJECT_ID" ] && [ "$VITE_FIREBASE_PROJECT_ID" != "$FIREBASE_PROJECT_ID" ]; then
+            echo "::warning::VITE_FIREBASE_PROJECT_ID ($VITE_FIREBASE_PROJECT_ID) no coincide con FIREBASE_PROJECT_ID ($FIREBASE_PROJECT_ID)."
+          fi
+          if [ -n "$FIREBASE_PROJECT_ID" ] && [ "$VITE_FIREBASE_AUTH_DOMAIN" != "$FIREBASE_PROJECT_ID.web.app" ]; then
+            echo "::warning::Se recomienda VITE_FIREBASE_AUTH_DOMAIN=$FIREBASE_PROJECT_ID.web.app (mismo dominio que la app) para que el login con Google funcione en Safari/iOS. Ver docs/SETUP.md."
+          fi
+          exit $fail
+
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # No dependency cache here on purpose: this job handles a deploy credential.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          package-manager-cache: false
+
+      - name: Install
+        working-directory: web
+        run: npm ci
+
+      - name: Build
+        working-directory: web
+        run: npm run build
+
+      - name: Deploy to Firebase Hosting
+        id: deploy
+        uses: FirebaseExtended/action-hosting-deploy@500ac625ca2dd40cbd15f7659af953801858032a # v0.11.0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.FIREBASE_PROJECT_ID }}
+          channelId: live
