@@ -7,11 +7,11 @@ import { formatNumber } from '../../lib/numbers'
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: 'good' | 'bad' }) {
   return (
-    <div className="flex flex-col items-center gap-0.5 rounded-xl bg-slate-50 px-2 py-2 text-center dark:bg-slate-800/60">
+    <div className="flex flex-col items-center gap-0.5 rounded-xl bg-slate-50/80 px-2 py-2 text-center ring-1 ring-slate-100 md:py-3 dark:bg-slate-800/60 dark:ring-slate-800">
       <span className="text-xs text-slate-500 dark:text-slate-400">{label}</span>
       <span
         className={cn(
-          'text-base font-semibold tabular-nums',
+          'text-base font-semibold tabular-nums md:text-lg',
           tone === 'good' && 'text-brand-700 dark:text-brand-400',
           tone === 'bad' && 'text-red-600 dark:text-red-400',
         )}
@@ -45,12 +45,16 @@ export function SummaryCard({ day }: { day: DaySummary }) {
   const hasMacros = totals.proteinG > 0 || totals.carbsG > 0 || totals.fatG > 0
 
   return (
-    <Card title="Balance del día" icon={<Flame className="size-5" />}>
+    <Card
+      title="Balance del día"
+      icon={<Flame className="size-5" />}
+      className="bg-linear-to-br from-white via-white to-brand-50 dark:from-slate-900 dark:via-slate-900 dark:to-brand-950/60"
+    >
       <div className="flex items-end justify-between gap-3">
         <div>
-          <p className="text-3xl font-bold tabular-nums text-slate-900 dark:text-slate-50">
+          <p className="text-3xl font-bold tracking-tight tabular-nums text-slate-900 md:text-4xl dark:text-slate-50">
             {formatNumber(kcalIn)}
-            <span className="ml-1 text-base font-medium text-slate-500 dark:text-slate-400">kcal ingeridas</span>
+            <span className="ml-1 text-base font-medium tracking-normal text-slate-500 dark:text-slate-400">kcal ingeridas</span>
           </p>
         </div>
         {remaining !== null && (
@@ -89,7 +93,7 @@ export function SummaryCard({ day }: { day: DaySummary }) {
         </div>
       )}
 
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className="mt-3 grid grid-cols-3 gap-2 md:gap-3">
         <Stat label="Objetivo" value={target !== null ? formatNumber(target) : '—'} />
         <Stat label="Cardio neto" value={cardioNet > 0 ? `+${formatNumber(cardioNet)}` : '0'} tone={cardioNet > 0 ? 'good' : undefined} />
         <Stat label="Disponibles" value={budget !== null ? formatNumber(budget) : '—'} />

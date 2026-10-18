@@ -17,8 +17,8 @@ export function DateSwitcher({ date, today }: { date: string; today: string }) {
   const showLong = label === 'Hoy' || label === 'Ayer'
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-1 rounded-2xl bg-white p-1 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:ring-slate-800">
+    <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
+      <div className="flex items-center gap-1 rounded-2xl md:w-96 bg-white p-1 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:ring-slate-800">
         <Button variant="ghost" size="icon" aria-label="Día anterior" onClick={() => go(addDays(date, -1))}>
           <ChevronLeft className="size-6" aria-hidden="true" />
         </Button>
@@ -56,7 +56,7 @@ export function DateSwitcher({ date, today }: { date: string; today: string }) {
         </Button>
       </div>
       {!isToday && (
-        <Button variant="secondary" size="sm" className="self-center" onClick={() => go(today)}>
+        <Button variant="secondary" size="sm" className="self-center md:self-auto" onClick={() => go(today)}>
           Volver a hoy
         </Button>
       )}

@@ -1,31 +1,17 @@
 import { Link, useLocation } from 'react-router'
-import { CalendarDays, History, TrendingDown, UserRound } from 'lucide-react'
-import type { ComponentType, SVGProps } from 'react'
 import { cn } from '../ui/styles'
+import { NAV_ITEMS } from './navItems'
 
-interface Tab {
-  to: string
-  label: string
-  Icon: ComponentType<SVGProps<SVGSVGElement>>
-  isActive: (pathname: string) => boolean
-}
-
-const TABS: Tab[] = [
-  { to: '/', label: 'Hoy', Icon: CalendarDays, isActive: (p) => p === '/' || p.startsWith('/dia/') },
-  { to: '/historial', label: 'Historial', Icon: History, isActive: (p) => p.startsWith('/historial') },
-  { to: '/progreso', label: 'Progreso', Icon: TrendingDown, isActive: (p) => p.startsWith('/progreso') },
-  { to: '/perfil', label: 'Perfil', Icon: UserRound, isActive: (p) => p.startsWith('/perfil') },
-]
-
+/** Bottom navigation for phones; replaced by <SideNav> from the `md` breakpoint. */
 export function TabBar() {
   const { pathname } = useLocation()
   return (
     <nav
       aria-label="Secciones"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-safe backdrop-blur dark:border-slate-800 dark:bg-slate-900/95"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-safe backdrop-blur md:hidden dark:border-slate-800 dark:bg-slate-900/95"
     >
       <ul className="mx-auto grid max-w-lg grid-cols-4">
-        {TABS.map(({ to, label, Icon, isActive }) => {
+        {NAV_ITEMS.map(({ to, label, Icon, isActive }) => {
           const active = isActive(pathname)
           return (
             <li key={to}>

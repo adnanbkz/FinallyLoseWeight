@@ -55,7 +55,7 @@ describe('<HistoryScreen>', () => {
   it('asks for the last 30 local days and lists them newest first', async () => {
     const { api } = renderHistory(async () =>
       stats({
-        [TODAY]: { weightKg: 72.4, kcalIn: 1850, steps: 9000 },
+        [TODAY]: { weightKg: 72.4, kcalIn: 1850, steps: 9000, kcalCardioNet: 310 },
         '2026-10-12': { weightKg: 72.9, kcalIn: null, steps: 12500 },
       }),
     )
@@ -69,10 +69,11 @@ describe('<HistoryScreen>', () => {
     expect(rows[0]).toHaveTextContent('Peso: 72,4 kg')
     expect(rows[0]).toHaveTextContent('Calorías: 1850 kcal')
     expect(rows[0]).toHaveTextContent('Pasos: 9000 pasos')
+    expect(rows[0]).toHaveTextContent('Cardio neto: 310 kcal')
     expect(rows[1]).toHaveTextContent('Ayer')
     expect(rows[2]).toHaveTextContent('12.500')
-    // Not logged is shown as "sin registro", never as 0.
-    expect(within(rows[2]!).getByLabelText('sin registro')).toBeInTheDocument()
+    // Not logged is shown as "sin registro", never as 0 (here: kcal and cardio).
+    expect(within(rows[2]!).getAllByLabelText('sin registro')).toHaveLength(2)
     expect(rows[29]).toHaveTextContent('15 sept')
   })
 

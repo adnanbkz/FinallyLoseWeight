@@ -24,55 +24,60 @@ export function ProfileScreen() {
 
   return (
     <>
-      <ScreenHeader title="Perfil" />
+      <ScreenHeader title="Perfil" subtitle="Tus objetivos, tus datos y tu cuenta." />
       <ScreenBody>
-        <Card title="Tu perfil" icon={<UserRound className="size-5" />}>
-          {profile.data ? <ProfileForm key={profile.data.updatedAt} profile={profile.data} /> : <LoadingBlock />}
-        </Card>
+        {/* Desktop: the form on the left, data and account on the right. */}
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
+          <Card title="Tu perfil" icon={<UserRound className="size-5" />}>
+            {profile.data ? <ProfileForm key={profile.data.updatedAt} profile={profile.data} /> : <LoadingBlock />}
+          </Card>
 
-        <Card title="Tus datos" icon={<Download className="size-5" />}>
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              Descarga una copia de todo lo que has registrado (JSON) o borra tu cuenta y todos tus datos.
-            </p>
-            <ExportData />
-            <DeleteAccountSection />
-          </div>
-        </Card>
-
-        <Card title="Cuenta">
-          <dl className="flex flex-col gap-2 text-sm">
-            <div className="flex justify-between gap-3">
-              <dt className="text-slate-500 dark:text-slate-400">Email</dt>
-              <dd className="min-w-0 truncate text-right">{user?.email ?? '—'}</dd>
-            </div>
-            {profile.data && (
-              <div className="flex justify-between gap-3">
-                <dt className="text-slate-500 dark:text-slate-400">Consentimiento</dt>
-                <dd className="text-right">
-                  {formatInstantDate(profile.data.consentAt)} · aviso v{profile.data.privacyVersion}
-                </dd>
+          <div className="flex flex-col gap-4">
+            <Card title="Tus datos" icon={<Download className="size-5" />}>
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Descarga una copia de todo lo que has registrado (JSON) o borra tu cuenta y todos tus datos.
+                </p>
+                <ExportData />
+                <DeleteAccountSection />
               </div>
-            )}
-          </dl>
-          <nav className="mt-3 flex flex-col divide-y divide-slate-100 border-t border-slate-100 dark:divide-slate-800 dark:border-slate-800" aria-label="Más información">
-            <NavRow to="/privacidad" icon={<ShieldCheck className="size-5" />} label="Privacidad" />
-            <NavRow to="/instalar" icon={<Smartphone className="size-5" />} label="Cómo instalar la app" />
-          </nav>
-          <Button
-            variant="outline"
-            block
-            className="mt-3"
-            loading={signingOut}
-            onClick={() => {
-              setSigningOut(true)
-              void signOut().finally(() => setSigningOut(false))
-            }}
-            icon={<LogOut className="size-5" aria-hidden="true" />}
-          >
-            Cerrar sesión
-          </Button>
-        </Card>
+            </Card>
+
+            <Card title="Cuenta">
+              <dl className="flex flex-col gap-2 text-sm">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-slate-500 dark:text-slate-400">Email</dt>
+                  <dd className="min-w-0 truncate text-right">{user?.email ?? '—'}</dd>
+                </div>
+                {profile.data && (
+                  <div className="flex justify-between gap-3">
+                    <dt className="text-slate-500 dark:text-slate-400">Consentimiento</dt>
+                    <dd className="text-right">
+                      {formatInstantDate(profile.data.consentAt)} · aviso v{profile.data.privacyVersion}
+                    </dd>
+                  </div>
+                )}
+              </dl>
+              <nav className="mt-3 flex flex-col divide-y divide-slate-100 border-t border-slate-100 dark:divide-slate-800 dark:border-slate-800" aria-label="Más información">
+                <NavRow to="/privacidad" icon={<ShieldCheck className="size-5" />} label="Privacidad" />
+                <NavRow to="/instalar" icon={<Smartphone className="size-5" />} label="Cómo instalar la app" />
+              </nav>
+              <Button
+                variant="outline"
+                block
+                className="mt-3"
+                loading={signingOut}
+                onClick={() => {
+                  setSigningOut(true)
+                  void signOut().finally(() => setSigningOut(false))
+                }}
+                icon={<LogOut className="size-5" aria-hidden="true" />}
+              >
+                Cerrar sesión
+              </Button>
+            </Card>
+          </div>
+        </div>
         <p className="text-center text-xs text-slate-400 dark:text-slate-500">FinallyLoseWeight v{__APP_VERSION__}</p>
       </ScreenBody>
     </>

@@ -85,8 +85,8 @@ export function InstallScreen() {
   const ios = isIOS()
   return (
     <div className="min-h-dvh">
-      <ScreenHeader title="Cómo instalar" back="/" />
-      <ScreenBody withTabBar={false}>
+      <ScreenHeader title="Cómo instalar" back="/" width="narrow" />
+      <ScreenBody withTabBar={false} width="narrow">
         {standalone ? (
           <Card>
             <p className="flex items-center gap-2 text-brand-800 dark:text-brand-300">

@@ -51,18 +51,20 @@ export default function ProgressScreen() {
 
   return (
     <>
-      <ScreenHeader title="Progreso" />
+      <ScreenHeader title="Progreso" subtitle="Tu evolución de peso, calorías y pasos." />
       <ScreenBody>
         {/* One filter row above everything it scopes. */}
         <Segmented
+          className="md:w-96"
           label="Periodo"
           value={String(range) as `${RangeDays}`}
           onChange={(v) => setRange(Number(v) as RangeDays)}
           options={RANGE_OPTIONS}
         />
         {stats.isPending ? (
-          <div className="flex flex-col gap-4" role="status" aria-label="Cargando gráficas">
-            <Skeleton className="h-24" />
+          <div className="grid gap-4 lg:grid-cols-2" role="status" aria-label="Cargando gráficas">
+            <Skeleton className="h-24 lg:col-span-2" />
+            <Skeleton className="h-72 lg:col-span-2 lg:h-96" />
             <Skeleton className="h-72" />
             <Skeleton className="h-72" />
           </div>
@@ -70,9 +72,14 @@ export default function ProgressScreen() {
           <ErrorBlock error={stats.error} onRetry={() => void stats.refetch()} retrying={stats.isFetching} />
         ) : (
           // Refetch keeps the previous frame at reduced opacity (no skeleton flash).
-          <div className={cn('flex flex-col gap-4 transition-opacity', stats.isPlaceholderData && 'opacity-60')}>
+          <div className={cn('grid gap-4 transition-opacity lg:grid-cols-2', stats.isPlaceholderData && 'opacity-60')}>
             {stats.isError && (
-              <StaleDataNotice error={stats.error} onRetry={() => void stats.refetch()} retrying={stats.isFetching} />
+              <StaleDataNotice
+                className="lg:col-span-2"
+                error={stats.error}
+                onRetry={() => void stats.refetch()}
+                retrying={stats.isFetching}
+              />
             )}
             <Charts days={stats.data.days} range={range} target={target} kcalTarget={kcalTarget} />
           </div>
@@ -101,7 +108,7 @@ function Charts({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:col-span-2">
         <StatTile
           label="Último peso"
           value={summary.latestWeight ? `${formatNumber(summary.latestWeight.kg, 1)} kg` : '—'}
@@ -116,7 +123,7 @@ function Charts({
         <StatTile label="Media de pasos" value={summary.avgSteps !== null ? formatNumber(summary.avgSteps) : '—'} detail="por día registrado" />
       </div>
 
-      <Card title="Peso" icon={<Scale className="size-5" />}>
+      <Card title="Peso" icon={<Scale className="size-5" />} className="lg:col-span-2">
         <WeightChart days={days} range={range} target={target} />
       </Card>
 
@@ -164,9 +171,9 @@ function Charts({
 
 function StatTile({ label, value, detail }: { label: string; value: string; detail?: string }) {
   return (
-    <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:ring-slate-800">
+    <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200/80 md:p-4 dark:bg-slate-900 dark:ring-slate-800">
       <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-50">{value}</p>
+      <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums text-slate-900 md:text-2xl dark:text-slate-50">{value}</p>
       {detail && <p className="text-xs text-slate-500 dark:text-slate-400">{detail}</p>}
     </div>
   )
@@ -232,7 +239,8 @@ function WeightChart({ days, range, target }: { days: StatsDay[]; range: RangeDa
           ...(targetInDomain ? [{ label: `Objetivo ${formatNumber(target, 1)} kg`, color: 'var(--chart-muted)', kind: 'dashed' as const }] : []),
         ]}
       />
-      <div style={{ height: CHART_HEIGHT }} className="mt-2">
+      {/* The weight chart is the main one: it gets more height once it spans a wide screen. */}
+      <div className="mt-2 h-55 md:h-72 lg:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
             <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
@@ -403,7 +411,7 @@ function TooltipRow({ color, value, label, dot }: { color: string; value: string
 function DataTable({ days }: { days: StatsDay[] }) {
   const rows = [...days].reverse()
   return (
-    <details className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:ring-slate-800">
+    <details className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/80 lg:col-span-2 dark:bg-slate-900 dark:ring-slate-800">
       <summary className="min-h-12 cursor-pointer content-center px-4 font-medium text-slate-700 dark:text-slate-200">
         Ver los datos en una tabla
       </summary>
