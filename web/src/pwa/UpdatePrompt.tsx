@@ -30,8 +30,7 @@ export function UpdatePrompt() {
 
   return (
     <div
-      className="fixed inset-x-0 z-[70] flex justify-center px-4"
-      style={{ top: 'calc(env(safe-area-inset-top) + 4.25rem)' }}
+      className="fixed inset-x-0 top-[calc(env(safe-area-inset-top)+4.25rem)] z-[70] flex justify-center px-4 md:top-[calc(env(safe-area-inset-top)+5.25rem)]"
     >
       <div
         role="status"

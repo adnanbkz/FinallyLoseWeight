@@ -174,7 +174,7 @@ export function AuthScreen() {
         {mode === 'signup' && ' Tras crear la cuenta te enviaremos un email para verificarla.'}
       </InfoNote>
 
-      <nav className="mt-auto flex justify-center gap-6 pt-2 text-sm" aria-label="Información">
+      <nav className="mt-auto flex justify-center gap-6 pt-2 text-sm lg:mt-0" aria-label="Información">
         <Link to="/privacidad" className="min-h-11 content-center font-medium text-brand-700 hover:underline dark:text-brand-400">
           Privacidad
         </Link>
