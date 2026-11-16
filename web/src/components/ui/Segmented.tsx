@@ -43,7 +43,7 @@ export function Segmented<T extends string>({ label, value, options, onChange, c
         role="radiogroup"
         aria-labelledby={labelId}
         onKeyDown={onKeyDown}
-        className="grid auto-cols-fr grid-flow-col gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800"
+        className="grid auto-cols-fr grid-flow-col gap-1 rounded-2xl bg-slate-900/[0.05] p-1 ring-1 ring-slate-900/[0.04] ring-inset dark:bg-white/[0.06] dark:ring-white/5"
       >
         {options.map((option) => {
           const selected = option.value === value
@@ -56,9 +56,9 @@ export function Segmented<T extends string>({ label, value, options, onChange, c
               tabIndex={selected ? 0 : -1}
               onClick={() => onChange(option.value)}
               className={cn(
-                'min-h-10 rounded-lg px-2 text-sm font-semibold transition-colors',
+                'min-h-10 rounded-xl px-2 text-sm font-semibold transition-all duration-200',
                 selected
-                  ? 'bg-white text-brand-800 shadow-sm dark:bg-slate-950 dark:text-brand-300'
+                  ? 'bg-white text-slate-900 shadow-card ring-1 ring-slate-900/5 dark:bg-slate-700/80 dark:text-white dark:ring-white/10'
                   : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
               )}
             >

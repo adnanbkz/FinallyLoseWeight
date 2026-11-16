@@ -67,7 +67,7 @@ export function ExportData() {
       </Button>
       {exportData.isError && <FormError>{apiErrorMessage(exportData.error)}</FormError>}
       {ready && (
-        <div className="flex flex-col gap-2 rounded-xl bg-brand-50 p-3 text-sm text-brand-900 dark:bg-brand-950 dark:text-brand-100" role="status">
+        <div className="flex flex-col gap-2 rounded-2xl bg-brand-50 p-3.5 text-sm text-brand-900 dark:bg-brand-400/10 dark:text-brand-100" role="status">
           <p>
             Tu archivo <strong className="break-all">{ready.filename}</strong> está listo.
           </p>

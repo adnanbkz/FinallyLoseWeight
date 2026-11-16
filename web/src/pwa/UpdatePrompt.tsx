@@ -30,12 +30,12 @@ export function UpdatePrompt() {
 
   return (
     <div
-      className="fixed inset-x-0 top-[calc(env(safe-area-inset-top)+4.25rem)] z-[70] flex justify-center px-4 md:top-[calc(env(safe-area-inset-top)+5.25rem)]"
+      className="fixed inset-x-0 top-[calc(env(safe-area-inset-top)+4.75rem)] z-[70] flex justify-center px-4 md:top-[calc(env(safe-area-inset-top)+6rem)]"
     >
       <div
         role="status"
         aria-live="polite"
-        className="flex w-full max-w-md animate-sheet-in items-center gap-3 rounded-2xl bg-slate-900 p-3 pl-4 text-white shadow-xl dark:bg-slate-100 dark:text-slate-900"
+        className="flex w-full max-w-md animate-sheet-in items-center gap-3 rounded-2xl bg-slate-900/95 p-3 pl-4 text-white shadow-float ring-1 ring-white/10 backdrop-blur dark:bg-slate-100 dark:text-slate-900"
       >
         <Sparkles className="size-5 shrink-0 text-brand-400 dark:text-brand-600" aria-hidden="true" />
         <p className="flex-1 text-sm font-medium">Nueva versión disponible</p>

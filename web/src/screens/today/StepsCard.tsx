@@ -29,7 +29,8 @@ export function StepsCard({ date, steps }: { date: string; steps: number | null 
   return (
     <Card
       title="Pasos"
-      icon={<Footprints className="size-5" />}
+      icon={<Footprints />}
+      tone="steps"
       action={
         steps !== null && (
           <Button variant="ghost" size="sm" onClick={() => setEditing(true)} icon={<Pencil className="size-4" aria-hidden="true" />}>
@@ -42,11 +43,11 @@ export function StepsCard({ date, steps }: { date: string; steps: number | null 
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="flex w-full items-baseline rounded-xl text-left"
+          className="flex w-full items-baseline rounded-2xl text-left"
           aria-label={`${formatSteps(steps)} pasos. Editar`}
         >
-          <span className="text-3xl font-bold tabular-nums text-slate-900 dark:text-slate-50">{formatSteps(steps)}</span>
-          <span className="ml-1 text-base font-medium text-slate-500 dark:text-slate-400">pasos</span>
+          <span className="text-4xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-white">{formatSteps(steps)}</span>
+          <span className="ml-1.5 text-base font-semibold text-slate-400 dark:text-slate-500">pasos</span>
         </button>
       ) : (
         <QuickNumberForm

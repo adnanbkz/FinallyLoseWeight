@@ -261,7 +261,7 @@ function EstimatePanel({
   error: unknown
 }) {
   return (
-    <div className="rounded-xl bg-brand-50 p-3 dark:bg-brand-950/60" aria-live="polite">
+    <div className="rounded-2xl bg-brand-50 p-3.5 dark:bg-brand-400/10" aria-live="polite">
       <div className="flex items-center gap-2 text-sm font-medium text-brand-900 dark:text-brand-100">
         <Calculator className="size-4" aria-hidden="true" />
         Estimación

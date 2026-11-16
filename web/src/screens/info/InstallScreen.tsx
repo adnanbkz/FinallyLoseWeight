@@ -11,7 +11,7 @@ import { promptInstall, useInstallPrompt } from '../../pwa/installPrompt'
 function Step({ n, children }: { n: number; children: ReactNode }) {
   return (
     <li className="flex gap-3">
-      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-800 dark:bg-brand-950 dark:text-brand-300" aria-hidden="true">
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-800 dark:bg-brand-400/10 dark:text-brand-300" aria-hidden="true">
         {n}
       </span>
       <span className="pt-0.5">{children}</span>

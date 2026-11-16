@@ -49,7 +49,7 @@ export function OnboardingScreen() {
     <GateLayout title="Te damos la bienvenida" subtitle="Cuéntanos un poco sobre ti para preparar tu diario.">
       <form className="flex flex-col gap-4" onSubmit={onSubmit} noValidate>
         <section className={cardClass} aria-labelledby="onboarding-profile">
-          <h2 id="onboarding-profile" className="mb-4 text-base font-semibold">
+          <h2 id="onboarding-profile" className="mb-4 text-base font-bold">
             Tu perfil
           </h2>
           <ProfileFields values={values} errors={errors} onChange={setValues} disabled={save.isPending} />

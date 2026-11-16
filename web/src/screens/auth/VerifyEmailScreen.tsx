@@ -81,7 +81,7 @@ export function VerifyEmailScreen() {
     <GateLayout title="Verifica tu email" subtitle="Un último paso antes de empezar.">
       <div className={`${cardClass} flex flex-col gap-4`}>
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-brand-50 text-brand-700 dark:bg-brand-950 dark:text-brand-300">
+          <div className="flex size-14 items-center justify-center rounded-full bg-brand-50 text-brand-700 dark:bg-brand-400/10 dark:text-brand-300">
             <MailCheck className="size-8" aria-hidden="true" />
           </div>
           <p className="text-slate-700 dark:text-slate-200">
@@ -91,7 +91,7 @@ export function VerifyEmailScreen() {
           <p className="text-sm text-slate-500 dark:text-slate-400">Si no lo ves en unos minutos, revisa la carpeta de spam.</p>
         </div>
         {notice && (
-          <p role="status" className="rounded-xl bg-brand-50 px-3 py-2 text-sm text-brand-900 dark:bg-brand-950 dark:text-brand-100">
+          <p role="status" className="rounded-2xl bg-brand-50 px-3.5 py-2.5 text-sm text-brand-900 dark:bg-brand-400/10 dark:text-brand-100">
             {notice}
           </p>
         )}

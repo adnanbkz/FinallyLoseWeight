@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/Button'
 import { TextField } from '../../components/ui/Field'
 import { Segmented } from '../../components/ui/Segmented'
 import { FormError, InfoNote } from '../../components/ui/States'
-import { cardClass } from '../../components/ui/styles'
+import { cardClass, cn } from '../../components/ui/styles'
 import { GateLayout } from '../gates/GateLayout'
 import { GoogleIcon } from './GoogleIcon'
 import { PasswordField } from './PasswordField'
@@ -88,8 +88,8 @@ export function AuthScreen() {
   }
 
   return (
-    <GateLayout title="FinallyLoseWeight" subtitle="Tu diario de peso, comidas y actividad.">
-      <div className={cardClass}>
+    <GateLayout title="FinallyLoseWeight" subtitle="Tu diario de peso, comidas y actividad." showcase>
+      <div className={cn(cardClass, 'p-5 shadow-float md:p-6 dark:bg-slate-900')}>
         {mode === 'reset' ? (
           <ResetForm
             email={email}
@@ -151,7 +151,7 @@ export function AuthScreen() {
             </form>
 
             <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400" aria-hidden="true">
-              <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />o<span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+              <span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />o<span className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
             </div>
 
             <Button
@@ -208,13 +208,13 @@ function ResetForm({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h2 className="text-lg font-semibold">Recuperar contraseña</h2>
+        <h2 className="text-xl font-bold">Recuperar contraseña</h2>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Te enviaremos un enlace para crear una contraseña nueva.
         </p>
       </div>
       {sentTo ? (
-        <div className="flex flex-col items-center gap-2 rounded-xl bg-brand-50 p-4 text-center text-brand-900 dark:bg-brand-950 dark:text-brand-100" role="status">
+        <div className="flex flex-col items-center gap-2 rounded-2xl bg-brand-50 p-4 text-center text-brand-900 ring-1 ring-brand-600/10 dark:bg-brand-400/10 dark:text-brand-100 dark:ring-brand-400/20" role="status">
           <MailCheck className="size-8" aria-hidden="true" />
           <p>
             Si existe una cuenta con <strong className="break-all">{sentTo}</strong>, recibirás un email con el enlace en unos

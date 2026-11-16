@@ -1,10 +1,11 @@
 import { Navigate, useParams } from 'react-router'
-import { useDay } from '../../api/hooks'
+import { useDay, useProfile } from '../../api/hooks'
 import { ScreenBody } from '../../components/layout/AppShell'
 import { ScreenHeader } from '../../components/layout/ScreenHeader'
 import { ErrorBlock, Skeleton, StaleDataNotice } from '../../components/ui/States'
 import { isValidIsoDate } from '../../lib/dates'
 import { useToday } from '../../lib/useToday'
+import { cn } from '../../components/ui/styles'
 import { CardioCard } from './CardioCard'
 import { DateSwitcher } from './DateSwitcher'
 import { MealsCard } from './MealsCard'
@@ -23,10 +24,12 @@ export function TodayScreen() {
 
 function DayView({ date, today }: { date: string; today: string }) {
   const day = useDay(date)
+  const profile = useProfile()
   const isToday = date === today
+  const name = profile.data?.displayName.trim()
   return (
     <>
-      <ScreenHeader title={isToday ? 'Hoy' : 'Diario'} />
+      <ScreenHeader title={isToday ? 'Hoy' : 'Diario'} eyebrow={isToday && name ? `${greeting(new Date().getHours())}, ${name}` : undefined} />
       <ScreenBody>
         <DateSwitcher date={date} today={today} />
         {day.isPending ? (
@@ -43,7 +46,7 @@ function DayView({ date, today }: { date: string; today: string }) {
           <>
             {/* A failed refetch keeps the cards (and any open sheet) mounted with the last data. */}
             {day.isError && <StaleDataNotice error={day.error} onRetry={() => void day.refetch()} retrying={day.isFetching} />}
-            <div className={DAY_GRID}>
+            <div className={cn(DAY_GRID, 'animate-rise')}>
               <div className="md:col-span-2 lg:col-span-3">
                 <SummaryCard day={day.data} />
               </div>
@@ -74,3 +77,9 @@ function DayView({ date, today }: { date: string; today: string }) {
  */
 const DAY_GRID =
   'grid gap-4 md:grid-flow-row-dense md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-[auto_auto_auto_auto_1fr] [&>*]:min-w-0 [&>div>section]:h-full'
+
+function greeting(hour: number): string {
+  if (hour >= 6 && hour < 14) return 'Buenos días'
+  if (hour >= 14 && hour < 21) return 'Buenas tardes'
+  return 'Buenas noches'
+}

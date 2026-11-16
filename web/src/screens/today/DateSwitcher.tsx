@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { addDays, formatDayLabel, formatLongDate, isValidIsoDate } from '../../lib/dates'
 import { Button } from '../../components/ui/Button'
-import { cn } from '../../components/ui/styles'
+import { cn, surfaceClass } from '../../components/ui/styles'
 import { dayPath } from '../../lib/paths'
 
 /** Previous / next day (never beyond today), native date picker and "Hoy". */
@@ -18,12 +18,12 @@ export function DateSwitcher({ date, today }: { date: string; today: string }) {
 
   return (
     <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-3">
-      <div className="flex items-center gap-1 rounded-2xl md:w-96 bg-white p-1 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:ring-slate-800">
+      <div className={cn('flex items-center gap-1 rounded-full p-1 md:w-96', surfaceClass)}>
         <Button variant="ghost" size="icon" aria-label="Día anterior" onClick={() => go(addDays(date, -1))}>
           <ChevronLeft className="size-6" aria-hidden="true" />
         </Button>
-        <label className="relative flex min-h-12 flex-1 cursor-pointer flex-col items-center justify-center rounded-xl px-2 text-center hover:bg-slate-50 dark:hover:bg-slate-800/60">
-          <span className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-50">
+        <label className="relative flex min-h-12 flex-1 cursor-pointer flex-col items-center justify-center rounded-full px-2 text-center transition-colors hover:bg-slate-900/[0.03] dark:hover:bg-white/5">
+          <span className="flex items-center gap-1.5 font-bold text-slate-900 capitalize dark:text-slate-50">
             <CalendarDays className="size-4 text-brand-600 dark:text-brand-400" aria-hidden="true" />
             {label}
           </span>
