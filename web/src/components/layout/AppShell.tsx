@@ -31,11 +31,11 @@ export function ScreenBody({
   return (
     <main
       className={cn(
-        'mx-auto flex flex-col gap-4 px-safe pt-4 md:px-8 md:pt-6',
+        'mx-auto flex flex-col gap-4 px-safe pt-4 md:gap-5 md:px-8 md:pt-6',
         CONTENT_WIDTH[width],
         withTabBar
-          ? 'pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:pb-10'
-          : 'pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:pb-10',
+          ? 'pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:pb-12'
+          : 'pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:pb-12',
         className,
       )}
     >

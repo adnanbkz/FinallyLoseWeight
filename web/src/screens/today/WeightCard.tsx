@@ -30,7 +30,8 @@ export function WeightCard({ date, weight }: { date: string; weight: Weight | nu
   return (
     <Card
       title="Peso"
-      icon={<Scale className="size-5" />}
+      icon={<Scale />}
+      tone="weight"
       action={
         weight && (
           <Button variant="ghost" size="sm" onClick={() => setEditing(true)} icon={<Pencil className="size-4" aria-hidden="true" />}>
@@ -43,14 +44,18 @@ export function WeightCard({ date, weight }: { date: string; weight: Weight | nu
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="flex w-full flex-col items-start rounded-xl text-left"
+          className="group flex w-full flex-col items-start rounded-2xl text-left"
           aria-label={`Peso: ${formatNumber(weight.weightKg, 2)} kg. Editar`}
         >
-          <span className="text-3xl font-bold tabular-nums text-slate-900 dark:text-slate-50">
+          <span className="text-4xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-white">
             {formatNumber(weight.weightKg, 2)}
-            <span className="ml-1 text-base font-medium text-slate-500 dark:text-slate-400">kg</span>
+            <span className="ml-1.5 text-base font-semibold tracking-normal text-slate-400 dark:text-slate-500">kg</span>
           </span>
-          {weight.note && <span className="mt-1 text-sm text-slate-600 dark:text-slate-300">{weight.note}</span>}
+          {weight.note && (
+            <span className="mt-2 inline-flex max-w-full truncate rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-700 dark:bg-violet-400/10 dark:text-violet-300">
+              {weight.note}
+            </span>
+          )}
         </button>
       ) : (
         <QuickNumberForm

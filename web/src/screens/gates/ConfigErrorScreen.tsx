@@ -1,4 +1,5 @@
 import { Settings } from 'lucide-react'
+import { cardClass } from '../../components/ui/styles'
 
 /** Shown when the build has no (or invalid) VITE_* configuration. Uses no providers. */
 export function ConfigErrorScreen({ missing, invalid, detail }: { missing: string[]; invalid: string[]; detail?: string }) {
@@ -13,7 +14,7 @@ export function ConfigErrorScreen({ missing, invalid, detail }: { missing: strin
         Si eres quien administra la app, revisa las variables de entorno y vuelve a generar la web.
       </p>
       {missing.length > 0 && (
-        <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+        <section className={cardClass}>
           <h2 className="mb-2 font-semibold">Variables sin valor</h2>
           <ul className="list-inside list-disc space-y-1 font-mono text-sm">
             {missing.map((name) => (
@@ -23,7 +24,7 @@ export function ConfigErrorScreen({ missing, invalid, detail }: { missing: strin
         </section>
       )}
       {invalid.length > 0 && (
-        <section className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+        <section className={cardClass}>
           <h2 className="mb-2 font-semibold">Variables con un valor no válido</h2>
           <ul className="list-inside list-disc space-y-1 font-mono text-sm">
             {invalid.map((name) => (

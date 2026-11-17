@@ -151,11 +151,11 @@ export function Checkbox({ label, error, id: idProp, className, ...rest }: Check
       <label
         htmlFor={id}
         className={cn(
-          'flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm leading-snug',
+          'flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl border p-3.5 text-sm leading-snug transition-colors',
           error
             ? 'border-red-500 dark:border-red-400'
             : 'border-slate-200 dark:border-slate-700',
-          'has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-950',
+          'has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 dark:has-[:checked]:bg-brand-400/10',
         )}
       >
         <input

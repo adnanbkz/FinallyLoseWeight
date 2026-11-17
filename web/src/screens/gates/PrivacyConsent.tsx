@@ -21,11 +21,11 @@ export function PrivacyConsentSection({
   const headingId = useId()
   return (
     <section className={cardClass} aria-labelledby={headingId}>
-      <h2 id={headingId} className="mb-2 text-base font-semibold">
+      <h2 id={headingId} className="mb-2 text-base font-bold">
         Tu privacidad
       </h2>
       <PrivacySummary />
-      <details className="group mt-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+      <details className="group mt-3 rounded-2xl bg-slate-900/[0.03] dark:bg-white/5">
         <summary className="min-h-11 cursor-pointer content-center px-3 text-sm font-medium text-brand-700 dark:text-brand-400">
           Leer el aviso de privacidad completo
         </summary>

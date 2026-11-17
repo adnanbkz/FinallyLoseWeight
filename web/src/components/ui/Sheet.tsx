@@ -88,7 +88,7 @@ function SheetPanel({ onClose, title, description, children, footer, dismissible
       style={keyboardInset ? { paddingBottom: keyboardInset } : undefined}
     >
       <div
-        className="absolute inset-0 animate-fade-in bg-slate-950/50 backdrop-blur-[1px]"
+        className="absolute inset-0 animate-fade-in bg-slate-950/40 backdrop-blur-sm"
         aria-hidden="true"
         onClick={() => dismissible && onClose()}
       />
@@ -100,14 +100,14 @@ function SheetPanel({ onClose, title, description, children, footer, dismissible
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
-          'relative flex w-full max-w-lg animate-sheet-in flex-col rounded-t-3xl bg-white shadow-2xl outline-none sm:rounded-3xl dark:bg-slate-900',
+          'relative flex w-full max-w-lg animate-sheet-in flex-col rounded-t-[2rem] bg-white shadow-2xl ring-1 ring-slate-900/5 outline-none sm:rounded-[2rem] dark:bg-slate-900 dark:ring-white/10',
           'max-h-[calc(100dvh-env(safe-area-inset-top)-0.75rem)]',
         )}
       >
         <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-slate-300 sm:hidden dark:bg-slate-700" aria-hidden="true" />
-        <div className="flex items-start justify-between gap-3 px-5 pt-3 pb-2">
+        <div className="flex items-start justify-between gap-3 px-5 pt-3 pb-3 sm:px-6 sm:pt-5">
           <div className="min-w-0">
-            <h2 id={titleId} className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            <h2 id={titleId} className="text-xl font-bold text-slate-900 dark:text-slate-50">
               {title}
             </h2>
             {description && (
@@ -121,16 +121,16 @@ function SheetPanel({ onClose, title, description, children, footer, dismissible
             onClick={onClose}
             disabled={!dismissible}
             aria-label="Cerrar"
-            className="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800"
+            className="-mr-1 inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 disabled:opacity-40 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/15"
           >
-            <X className="size-6" aria-hidden="true" />
+            <X className="size-5" aria-hidden="true" />
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-4">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-4 sm:px-6">{children}</div>
         {footer && (
           <div
             className={cn(
-              'border-t border-slate-200 px-5 pt-3 dark:border-slate-800',
+              'border-t border-slate-100 px-5 pt-3 sm:px-6 dark:border-white/5',
               keyboardInset ? 'pb-3' : 'pb-[max(0.75rem,env(safe-area-inset-bottom))]',
             )}
           >

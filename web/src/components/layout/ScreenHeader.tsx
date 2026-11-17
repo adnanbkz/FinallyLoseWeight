@@ -6,8 +6,10 @@ import { CONTENT_WIDTH, type ContentWidth } from './navItems'
 
 export interface ScreenHeaderProps {
   title: ReactNode
-  /** Short line under the title on tablets / desktops (hidden on phones to keep the app bar compact). */
+  /** Short line under the title. */
   subtitle?: ReactNode
+  /** Small line above the title (e.g. a greeting). */
+  eyebrow?: ReactNode
   /** Shows a back button. A string is the fallback route when there is no history. */
   back?: boolean | string
   actions?: ReactNode
@@ -15,10 +17,10 @@ export interface ScreenHeaderProps {
 }
 
 /**
- * Sticky app bar. On phones it is brand-colored and extends under the iOS status bar (black-translucent);
- * from `md` it becomes a light, translucent page header aligned with the content column.
+ * Sticky, translucent page header with a large title. Under the iOS status bar (black-translucent, white
+ * text) a brand strip fills the safe area so the clock stays readable; elsewhere the inset is 0.
  */
-export function ScreenHeader({ title, subtitle, back, actions, width = 'wide' }: ScreenHeaderProps) {
+export function ScreenHeader({ title, subtitle, eyebrow, back, actions, width = 'wide' }: ScreenHeaderProps) {
   const navigate = useNavigate()
   const goBack = () => {
     const fallback = typeof back === 'string' ? back : '/'
@@ -29,28 +31,27 @@ export function ScreenHeader({ title, subtitle, back, actions, width = 'wide' }:
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 bg-brand-700 pt-safe text-white shadow-sm dark:bg-brand-900',
-        'md:border-b md:border-slate-200/80 md:bg-slate-50/85 md:text-slate-900 md:shadow-none md:backdrop-blur-md',
-        'md:dark:border-slate-800 md:dark:bg-slate-950/85 md:dark:text-slate-50',
+        'sticky top-0 z-30 pt-safe',
+        'border-b border-slate-900/[0.06] bg-slate-50/75 backdrop-blur-xl backdrop-saturate-150',
+        'dark:border-white/[0.06] dark:bg-slate-950/70',
+        "before:absolute before:inset-x-0 before:top-0 before:h-[env(safe-area-inset-top)] before:bg-linear-to-r before:from-brand-700 before:to-brand-600 before:content-['']",
       )}
     >
-      <div className={cn('mx-auto flex min-h-14 items-center gap-1 px-safe md:min-h-18 md:gap-2 md:px-8', CONTENT_WIDTH[width])}>
+      <div className={cn('mx-auto flex min-h-16 items-center gap-2 px-safe py-2 md:min-h-20 md:px-8', CONTENT_WIDTH[width])}>
         {back && (
           <button
             type="button"
             onClick={goBack}
             aria-label="Volver"
-            className={cn(
-              '-ml-2 inline-flex size-11 items-center justify-center rounded-full hover:bg-white/10 focus-visible:outline-white',
-              'md:hover:bg-slate-200/70 md:focus-visible:outline-brand-500 md:dark:hover:bg-slate-800',
-            )}
+            className="-ml-2 inline-flex size-11 items-center justify-center rounded-full text-slate-700 hover:bg-slate-900/5 dark:text-slate-200 dark:hover:bg-white/10"
           >
             <ChevronLeft className="size-7" aria-hidden="true" />
           </button>
         )}
         <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold md:text-2xl md:font-bold md:tracking-tight">{title}</h1>
-          {subtitle && <p className="hidden truncate text-sm text-slate-500 md:block dark:text-slate-400">{subtitle}</p>}
+          {eyebrow && <p className="truncate text-xs font-semibold tracking-wide text-brand-700 uppercase dark:text-brand-400">{eyebrow}</p>}
+          <h1 className="truncate text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl dark:text-white">{title}</h1>
+          {subtitle && <p className="truncate text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>}
         </div>
         {actions && <div className="flex items-center gap-1">{actions}</div>}
       </div>
