@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
-import { Flame, Footprints, Scale } from 'lucide-react'
+import { Flame, Footprints, Scale, TrendingDown, type LucideIcon } from 'lucide-react'
 import {
+  Area,
   Bar,
   BarChart,
   CartesianGrid,
@@ -21,7 +22,7 @@ import { ScreenHeader } from '../../components/layout/ScreenHeader'
 import { Card } from '../../components/ui/Card'
 import { Segmented } from '../../components/ui/Segmented'
 import { EmptyBlock, ErrorBlock, Skeleton, StaleDataNotice } from '../../components/ui/States'
-import { buttonClass, cn } from '../../components/ui/styles'
+import { buttonClass, cn, surfaceClass, toneChip, type Tone } from '../../components/ui/styles'
 import { formatShortDate, rangeEndingAt } from '../../lib/dates'
 import { formatNumber, formatSigned } from '../../lib/numbers'
 import { useToday } from '../../lib/useToday'
@@ -39,6 +40,7 @@ import {
 
 const AXIS_TICK = { fontSize: 12, fill: 'var(--chart-muted)' }
 const CHART_HEIGHT = 220
+const TREND_FILL = 'weight-trend-fill'
 
 export default function ProgressScreen() {
   const today = useToday()
@@ -51,18 +53,20 @@ export default function ProgressScreen() {
 
   return (
     <>
-      <ScreenHeader title="Progreso" />
+      <ScreenHeader title="Progreso" subtitle="Tu evolución de peso, calorías y pasos." />
       <ScreenBody>
         {/* One filter row above everything it scopes. */}
         <Segmented
+          className="md:w-96"
           label="Periodo"
           value={String(range) as `${RangeDays}`}
           onChange={(v) => setRange(Number(v) as RangeDays)}
           options={RANGE_OPTIONS}
         />
         {stats.isPending ? (
-          <div className="flex flex-col gap-4" role="status" aria-label="Cargando gráficas">
-            <Skeleton className="h-24" />
+          <div className="grid gap-4 lg:grid-cols-2" role="status" aria-label="Cargando gráficas">
+            <Skeleton className="h-24 lg:col-span-2" />
+            <Skeleton className="h-72 lg:col-span-2 lg:h-96" />
             <Skeleton className="h-72" />
             <Skeleton className="h-72" />
           </div>
@@ -70,9 +74,14 @@ export default function ProgressScreen() {
           <ErrorBlock error={stats.error} onRetry={() => void stats.refetch()} retrying={stats.isFetching} />
         ) : (
           // Refetch keeps the previous frame at reduced opacity (no skeleton flash).
-          <div className={cn('flex flex-col gap-4 transition-opacity', stats.isPlaceholderData && 'opacity-60')}>
+          <div className={cn('grid gap-4 transition-opacity lg:grid-cols-2', stats.isPlaceholderData && 'opacity-60')}>
             {stats.isError && (
-              <StaleDataNotice error={stats.error} onRetry={() => void stats.refetch()} retrying={stats.isFetching} />
+              <StaleDataNotice
+                className="lg:col-span-2"
+                error={stats.error}
+                onRetry={() => void stats.refetch()}
+                retrying={stats.isFetching}
+              />
             )}
             <Charts days={stats.data.days} range={range} target={target} kcalTarget={kcalTarget} />
           </div>
@@ -101,29 +110,34 @@ function Charts({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:col-span-2">
         <StatTile
+          icon={Scale}
+          tone="weight"
           label="Último peso"
           value={summary.latestWeight ? `${formatNumber(summary.latestWeight.kg, 1)} kg` : '—'}
           detail={summary.latestWeight ? formatShortDate(summary.latestWeight.date) : 'Sin registros'}
         />
         <StatTile
+          icon={TrendingDown}
+          tone="brand"
           label="Cambio (media 7 días)"
           value={summary.trendChange !== null ? `${formatSigned(summary.trendChange)} kg` : '—'}
           detail={summary.trendChange !== null ? `en ${range === 365 ? '1 año' : `${range} días`}` : 'Faltan datos'}
         />
-        <StatTile label="Media de kcal" value={summary.avgKcal !== null ? formatNumber(summary.avgKcal) : '—'} detail="por día registrado" />
-        <StatTile label="Media de pasos" value={summary.avgSteps !== null ? formatNumber(summary.avgSteps) : '—'} detail="por día registrado" />
+        <StatTile icon={Flame} tone="meals" label="Media de kcal" value={summary.avgKcal !== null ? formatNumber(summary.avgKcal) : '—'} detail="por día registrado" />
+        <StatTile icon={Footprints} tone="steps" label="Media de pasos" value={summary.avgSteps !== null ? formatNumber(summary.avgSteps) : '—'} detail="por día registrado" />
       </div>
 
-      <Card title="Peso" icon={<Scale className="size-5" />}>
+      <Card title="Peso" icon={<Scale />} tone="weight" className="lg:col-span-2">
         <WeightChart days={days} range={range} target={target} />
       </Card>
 
-      <Card title="Calorías ingeridas" icon={<Flame className="size-5" />}>
+      <Card title="Calorías ingeridas" icon={<Flame />} tone="meals">
         <BarsChart
           bars={kcalBars}
           unit="kcal"
+          color="var(--chart-kcal)"
           reference={kcalTarget}
           referenceLabel="Objetivo"
           empty={
@@ -144,10 +158,11 @@ function Charts({
         )}
       </Card>
 
-      <Card title="Pasos" icon={<Footprints className="size-5" />}>
+      <Card title="Pasos" icon={<Footprints />} tone="steps">
         <BarsChart
           bars={stepBars}
           unit="pasos"
+          color="var(--chart-steps)"
           empty={
             <EmptyBlock icon={<Footprints className="size-6" />} title="Sin pasos en este periodo">
               Apunta tus pasos diarios en Hoy.
@@ -162,11 +177,14 @@ function Charts({
   )
 }
 
-function StatTile({ label, value, detail }: { label: string; value: string; detail?: string }) {
+function StatTile({ icon: Icon, tone, label, value, detail }: { icon: LucideIcon; tone: Tone; label: string; value: string; detail?: string }) {
   return (
-    <div className="rounded-2xl bg-white p-3 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:ring-slate-800">
+    <div className={cn('rounded-3xl p-4 md:p-5', surfaceClass)}>
+      <span className={cn('mb-3 inline-flex size-8 items-center justify-center rounded-xl ring-1', toneChip[tone])} aria-hidden="true">
+        <Icon className="size-4" />
+      </span>
       <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-50">{value}</p>
+      <p className="mt-0.5 text-2xl font-extrabold tracking-tight tabular-nums text-slate-900 md:text-[1.75rem] dark:text-white">{value}</p>
       {detail && <p className="text-xs text-slate-500 dark:text-slate-400">{detail}</p>}
     </div>
   )
@@ -186,9 +204,9 @@ function WeightTooltip({ active, payload }: TooltipContentProps) {
   if (!active || !row) return null
   return (
     <TooltipBox title={dayLongLabel(row.date)}>
-      <TooltipRow color="var(--chart-series-1)" dot value={row.weightKg !== null ? `${formatNumber(row.weightKg, 2)} kg` : '—'} label="Peso" />
+      <TooltipRow color="var(--chart-weight)" dot value={row.weightKg !== null ? `${formatNumber(row.weightKg, 2)} kg` : '—'} label="Peso" />
       <TooltipRow
-        color="var(--chart-series-2)"
+        color="var(--chart-trend)"
         value={row.weightTrendKg !== null ? `${formatNumber(row.weightTrendKg, 2)} kg` : '—'}
         label="Media 7 días"
       />
@@ -227,14 +245,21 @@ function WeightChart({ days, range, target }: { days: StatsDay[]; range: RangeDa
     <figure>
       <Legend
         items={[
-          { label: 'Peso diario', color: 'var(--chart-series-1)', kind: showDots ? 'dot' : 'line' },
-          { label: 'Media 7 días', color: 'var(--chart-series-2)', kind: 'line' },
+          { label: 'Peso diario', color: 'var(--chart-weight)', kind: showDots ? 'dot' : 'line' },
+          { label: 'Media 7 días', color: 'var(--chart-trend)', kind: 'line' },
           ...(targetInDomain ? [{ label: `Objetivo ${formatNumber(target, 1)} kg`, color: 'var(--chart-muted)', kind: 'dashed' as const }] : []),
         ]}
       />
-      <div style={{ height: CHART_HEIGHT }} className="mt-2">
+      {/* The weight chart is the main one: it gets more height once it spans a wide screen. */}
+      <div className="mt-2 h-55 md:h-72 lg:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id={TREND_FILL} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--chart-trend)" stopOpacity={0.22} />
+                <stop offset="100%" stopColor="var(--chart-trend)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
             <XAxis
               dataKey="label"
@@ -259,24 +284,35 @@ function WeightChart({ days, range, target }: { days: StatsDay[]; range: RangeDa
               type="monotone"
               dataKey="weightKg"
               name="Peso"
-              stroke={showDots ? 'transparent' : 'var(--chart-series-1)'}
+              stroke={showDots ? 'transparent' : 'var(--chart-weight)'}
               strokeWidth={2}
               connectNulls
-              dot={showDots ? { r: 4, fill: 'var(--chart-series-1)', stroke: 'var(--chart-surface)', strokeWidth: 2 } : false}
-              activeDot={{ r: 5, fill: 'var(--chart-series-1)', stroke: 'var(--chart-surface)', strokeWidth: 2 }}
+              dot={showDots ? { r: 4, fill: 'var(--chart-weight)', stroke: 'var(--chart-surface)', strokeWidth: 2 } : false}
+              activeDot={{ r: 5, fill: 'var(--chart-weight)', stroke: 'var(--chart-surface)', strokeWidth: 2 }}
+              isAnimationActive={false}
+            />
+            <Area
+              type="monotone"
+              dataKey="weightTrendKg"
+              stroke="none"
+              fill={`url(#${TREND_FILL})`}
+              baseValue={axis.domain[0]}
+              connectNulls
+              tooltipType="none"
+              activeDot={false}
               isAnimationActive={false}
             />
             <Line
               type="monotone"
               dataKey="weightTrendKg"
               name="Media 7 días"
-              stroke="var(--chart-series-2)"
-              strokeWidth={2}
+              stroke="var(--chart-trend)"
+              strokeWidth={3}
               strokeLinecap="round"
               strokeLinejoin="round"
               connectNulls
               dot={false}
-              activeDot={{ r: 4, fill: 'var(--chart-series-2)', stroke: 'var(--chart-surface)', strokeWidth: 2 }}
+              activeDot={{ r: 4, fill: 'var(--chart-trend)', stroke: 'var(--chart-surface)', strokeWidth: 2 }}
               isAnimationActive={false}
             />
           </ComposedChart>
@@ -291,12 +327,12 @@ function WeightChart({ days, range, target }: { days: StatsDay[]; range: RangeDa
 
 // ---------- Bars (kcal / steps) ----------
 
-function BarTooltip({ active, payload, unit }: TooltipContentProps & { unit: string }) {
+function BarTooltip({ active, payload, unit, color }: TooltipContentProps & { unit: string; color: string }) {
   const point = payload?.[0]?.payload as BarPoint | undefined
   if (!active || !point) return null
   return (
     <TooltipBox title={point.longLabel}>
-      <TooltipRow color="var(--chart-series-1)" value={point.value !== null ? `${formatNumber(point.value)} ${unit}` : 'Sin registro'} />
+      <TooltipRow color={color} dot value={point.value !== null ? `${formatNumber(point.value)} ${unit}` : 'Sin registro'} />
       {point.loggedDays > 1 && <p className="text-xs text-slate-500 dark:text-slate-400">Media de {point.loggedDays} días</p>}
     </TooltipBox>
   )
@@ -305,12 +341,14 @@ function BarTooltip({ active, payload, unit }: TooltipContentProps & { unit: str
 function BarsChart({
   bars,
   unit,
+  color,
   reference,
   referenceLabel,
   empty,
 }: {
   bars: BarPoint[]
   unit: string
+  color: string
   reference?: number | null
   referenceLabel?: string
   empty: ReactNode
@@ -324,33 +362,33 @@ function BarsChart({
       {reference != null && (
         <Legend items={[{ label: `${referenceLabel ?? 'Referencia'} ${formatNumber(reference)} ${unit}`, color: 'var(--chart-muted)', kind: 'dashed' }]} />
       )}
-    <div style={{ height: CHART_HEIGHT }} className={reference != null ? 'mt-2' : undefined}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={bars} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barCategoryGap="20%">
-          <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
-          <XAxis
-            dataKey="label"
-            tick={AXIS_TICK}
-            tickLine={false}
-            axisLine={{ stroke: 'var(--chart-axis)' }}
-            minTickGap={16}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            domain={axis.domain}
-            ticks={axis.ticks}
-            tick={AXIS_TICK}
-            tickLine={false}
-            axisLine={false}
-            width={48}
-            tickFormatter={(v: number) => formatNumber(v)}
-          />
-          <Tooltip content={(props) => <BarTooltip {...props} unit={unit} />} cursor={{ fill: 'var(--chart-grid)', opacity: 0.5 }} isAnimationActive={false} />
-          <Bar dataKey="value" name={unit} fill="var(--chart-series-1)" radius={[4, 4, 0, 0]} maxBarSize={24} isAnimationActive={false} />
-          {reference != null && <ReferenceLine y={reference} stroke="var(--chart-muted)" strokeDasharray="4 4" />}
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+      <div style={{ height: CHART_HEIGHT }} className={reference != null ? 'mt-3' : undefined}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={bars} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barCategoryGap="20%">
+            <CartesianGrid vertical={false} stroke="var(--chart-grid)" />
+            <XAxis
+              dataKey="label"
+              tick={AXIS_TICK}
+              tickLine={false}
+              axisLine={{ stroke: 'var(--chart-axis)' }}
+              minTickGap={16}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              domain={axis.domain}
+              ticks={axis.ticks}
+              tick={AXIS_TICK}
+              tickLine={false}
+              axisLine={false}
+              width={48}
+              tickFormatter={(v: number) => formatNumber(v)}
+            />
+            <Tooltip content={(props) => <BarTooltip {...props} unit={unit} color={color} />} cursor={{ fill: 'var(--chart-grid)', opacity: 0.5 }} isAnimationActive={false} />
+            <Bar dataKey="value" name={unit} fill={color} radius={[6, 6, 2, 2]} maxBarSize={22} isAnimationActive={false} />
+            {reference != null && <ReferenceLine y={reference} stroke="var(--chart-muted)" strokeDasharray="4 4" />}
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </figure>
   )
 }
@@ -378,7 +416,7 @@ function Legend({ items }: { items: Array<{ label: string; color: string; kind: 
 
 function TooltipBox({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="rounded-xl bg-white px-3 py-2 text-sm shadow-lg ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+    <div className="rounded-2xl bg-white/95 px-3.5 py-2.5 text-sm shadow-float ring-1 ring-slate-900/5 backdrop-blur dark:bg-slate-800/95 dark:ring-white/10">
       <p className="mb-1 text-xs text-slate-500 dark:text-slate-400">{title}</p>
       <div className="flex flex-col gap-0.5">{children}</div>
     </div>
@@ -403,8 +441,8 @@ function TooltipRow({ color, value, label, dot }: { color: string; value: string
 function DataTable({ days }: { days: StatsDay[] }) {
   const rows = [...days].reverse()
   return (
-    <details className="rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-900 dark:ring-slate-800">
-      <summary className="min-h-12 cursor-pointer content-center px-4 font-medium text-slate-700 dark:text-slate-200">
+    <details className={cn('group rounded-3xl lg:col-span-2', surfaceClass)}>
+      <summary className="min-h-14 cursor-pointer content-center px-5 font-semibold text-slate-700 dark:text-slate-200">
         Ver los datos en una tabla
       </summary>
       <div className="max-h-96 overflow-auto px-2 pb-3">
@@ -418,7 +456,7 @@ function DataTable({ days }: { days: StatsDay[] }) {
               <th scope="col" className="px-2 py-2 text-right font-medium">Pasos</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+          <tbody className="divide-y divide-slate-100 dark:divide-white/5">
             {rows.map((d) => (
               <tr key={d.date}>
                 <th scope="row" className="px-2 py-1.5 text-left font-normal text-slate-600 dark:text-slate-300">

@@ -33,7 +33,8 @@ export function CardioCard({ date, sessions }: { date: string; sessions: Cardio[
   return (
     <Card
       title="Cardio"
-      icon={<Activity className="size-5" />}
+      icon={<Activity />}
+      tone="cardio"
       action={
         <Button size="sm" variant="secondary" onClick={() => setEditing({ session: null })} icon={<Plus className="size-4" aria-hidden="true" />}>
           Añadir
@@ -52,7 +53,7 @@ export function CardioCard({ date, sessions }: { date: string; sessions: Cardio[
                 <button
                   type="button"
                   onClick={() => setEditing({ session })}
-                  className="flex min-h-14 w-full items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                  className="-mx-2 flex min-h-14 w-[calc(100%+1rem)] items-center gap-3 rounded-2xl px-2 py-2 text-left transition-colors hover:bg-slate-900/[0.03] dark:hover:bg-white/5"
                 >
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-medium text-slate-900 dark:text-slate-100">{session.machineName}</span>
@@ -62,7 +63,7 @@ export function CardioCard({ date, sessions }: { date: string; sessions: Cardio[
                     {session.note && <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{session.note}</span>}
                   </span>
                   <span className="shrink-0 text-right">
-                    <span className="block font-semibold tabular-nums text-brand-700 dark:text-brand-400">
+                    <span className="block font-bold tabular-nums text-rose-600 dark:text-rose-300">
                       {formatNumber(session.kcalNet)} kcal
                     </span>
                     <span className="block text-xs tabular-nums text-slate-500 dark:text-slate-400">
@@ -74,8 +75,8 @@ export function CardioCard({ date, sessions }: { date: string; sessions: Cardio[
               </li>
             ))}
           </ul>
-          <p className="mt-2 border-t border-slate-100 pt-2 text-right text-sm text-slate-600 dark:border-slate-800 dark:text-slate-300">
-            Total neto: <strong className="tabular-nums">{formatNumber(totalNet)} kcal</strong>
+          <p className="mt-3 flex items-center justify-between border-t border-dashed border-slate-200 pt-3 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">
+            Total neto: <strong className="font-bold tabular-nums text-slate-900 dark:text-white">{formatNumber(totalNet)} kcal</strong>
           </p>
         </>
       )}

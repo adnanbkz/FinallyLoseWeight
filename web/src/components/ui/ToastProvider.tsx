@@ -44,8 +44,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={api}>
       {children}
       <div
-        className="pointer-events-none fixed inset-x-0 z-[60] flex flex-col items-center gap-2 px-4"
-        style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom))' }}
+        className="pointer-events-none fixed inset-x-0 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] z-[60] flex flex-col items-center gap-2 px-4 md:bottom-6"
         aria-live="polite"
         aria-atomic="false"
       >
@@ -54,7 +53,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={toast.id}
             role={toast.tone === 'error' ? 'alert' : 'status'}
             className={cn(
-              'pointer-events-auto flex w-full max-w-md animate-sheet-in items-center gap-3 rounded-2xl bg-slate-900 px-4 py-3 text-sm text-white shadow-lg',
+              'pointer-events-auto flex w-full max-w-md animate-sheet-in items-center gap-3 rounded-2xl bg-slate-900/95 px-4 py-3 text-sm font-medium text-white shadow-float ring-1 ring-white/10 backdrop-blur',
               'dark:bg-slate-100 dark:text-slate-900',
             )}
           >

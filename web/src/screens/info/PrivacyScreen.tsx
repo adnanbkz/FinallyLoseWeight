@@ -6,8 +6,8 @@ import { PRIVACY_NOTICE_VERSION, PrivacyContent } from './PrivacyContent'
 export function PrivacyScreen() {
   return (
     <div className="min-h-dvh">
-      <ScreenHeader title="Privacidad" back="/" />
-      <ScreenBody withTabBar={false}>
+      <ScreenHeader title="Privacidad" back="/" width="narrow" />
+      <ScreenBody withTabBar={false} width="narrow">
         <article className={cardClass}>
           <PrivacyContent />
         </article>
